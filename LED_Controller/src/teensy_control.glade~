@@ -112,7 +112,6 @@
             <property name="max_length">255</property>
             <property name="width_chars">2</property>
             <property name="max_width_chars">2</property>
-            <signal name="changed" handler="scale_rgb_value_changed" swapped="no"/>
           </object>
           <packing>
             <property name="left_attach">1</property>
@@ -126,7 +125,6 @@
             <property name="max_length">255</property>
             <property name="width_chars">2</property>
             <property name="max_width_chars">2</property>
-            <signal name="changed" handler="scale_rgb_value_changed" swapped="no"/>
           </object>
           <packing>
             <property name="left_attach">1</property>

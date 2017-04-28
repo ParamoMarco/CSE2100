@@ -18,28 +18,28 @@ using namespace std;
 
 typedef struct 
 {
-  GtkWidget *window1; //visualization window
+  GtkWidget *window1; //!<visualization window
 
-  GtkWidget *entry_sd; //the text field to contain the name of the serial device
-  GtkWidget *label_voltage; // the label on which we display the voltage
-  GtkWidget *scale_red;
-  GtkWidget *scale_green;
-  GtkWidget *scale_blue;
-  GtkWidget *entry_red;
-  GtkWidget *entry_green;
-  GtkWidget *entry_blue;
-  GtkWidget *button_send;
-  GtkWidget *button_exit;
-  GtkWidget *button_closedevice;
-  GtkWidget *button_opendevice;
-  GtkWidget  *label_tx;
+  GtkWidget *entry_sd; //!<the text field to contain the name of the serial device
+  GtkWidget *label_voltage; //!< the label on which we display the voltage
+  GtkWidget *scale_red; //!< the pointer to red scale
+  GtkWidget *scale_green; //!< the pointer to green scale
+  GtkWidget *scale_blue; //!< the pointer to blue scale
+  GtkWidget *entry_red; //!< the pointer to red entry box
+  GtkWidget *entry_green; //!< the pointer to green entry box
+  GtkWidget *entry_blue; //!< the pointer to blue entry box
+  GtkWidget *button_send; //!< pointer to send packet button
+  GtkWidget *button_exit; //!< pointer to exit button
+  GtkWidget *button_closedevice; //!< pointer to open device button
+  GtkWidget *button_opendevice; //!< pointer to close current device button
+  GtkWidget  *label_tx; //!< pointer to the buffer display in GUI
 
 } Gui_Window_AppWidgets;
-/** Pointer to the GUI window **/
+//!< Pointer to the GUI window
 extern Gui_Window_AppWidgets *gui_app;
 
-/**This is the serial devices handle**/
-extern int ser_dev;
+
+extern int ser_dev;//!< This is the serial devices handle
 
 /**This is to gracefully shut down threads**/
 extern int kill_all_threads;

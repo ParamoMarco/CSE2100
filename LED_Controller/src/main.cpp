@@ -1,5 +1,6 @@
 /*!
-	* \author	
+	* \author	 Marco Paramo 
+	* \author Kenny Vo
 	* \version 1.0
 	* \mainpage The Teensy LED Controller
 	* \section intro_sec Introduction
@@ -7,7 +8,7 @@
 	* \section compile_sec Compilation
 	* Here are the instructions on how to compile this code.
 	* \subsection Step1 Cmake
-	* run cmake from the build directory in the LED_Controller with the command "cmake .."
+	* run cmake from the build directory in the LED_Controller with the command "cmake .." (../LED_Controller/build cmake ..)
 	* \subsection Step2 make 
 	* run the make command from within the build directory
 	*/
@@ -18,15 +19,17 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <termios.h>
-/** This variable delays how often voltage is read and displayed on the GUI**/
-#define VOLTAGE_DISPLAY_UPDATE_MS 100
 
-/**
- To connect widgets with code
+#define VOLTAGE_DISPLAY_UPDATE_MS 100//!<This variable delays how often voltage is read and displayed on the GUI
+
+ #define GuiappGET(xx) gui_app->xx=GTK_WIDGET(gtk_builder_get_object(p_builder,#xx))   //!<Creates the GUI creating macro using GTK
+/*!
+  *\brief Connect widgets with code
+  *\param p_builder Pointer to the GUI build structure
 **/
 void ObtainGuiWidgets(GtkBuilder *p_builder)
 {
-  #define GuiappGET(xx) gui_app->xx=GTK_WIDGET(gtk_builder_get_object(p_builder,#xx))
+ 
   GuiappGET(window1);
   GuiappGET(entry_sd);
   GuiappGET(label_voltage);
@@ -44,6 +47,10 @@ void ObtainGuiWidgets(GtkBuilder *p_builder)
 //********************************************************************
 // GUI handlers
 //********************************************************************
+/*!
+ * \brief This thread runs in the background to read voltage from the Teensy
+ * \param p_gptr The voltage recieved from the Teensy to display on the GUI
+ */
 gboolean  Voltage_Display_Displayer(gpointer p_gptr)
 {
   // do not change this function
@@ -52,14 +59,18 @@ gboolean  Voltage_Display_Displayer(gpointer p_gptr)
   g_mutex_unlock(mutex_to_protect_voltage_display);
   return true;
 }
-/** This function opens up the serial port for the Teensy**/
+/*!
+ *\brief Opens up the serial port for the Teensy
+ * \param p_wdgt Pointer to the widget
+ * \param p_data Pointer to the data for the widget
+ */
 extern "C" void button_opendevice_clicked(GtkWidget *p_wdgt, gpointer p_data ) 
 {
   //do not change  the next few lines
   //they contain the mambo-jumbo to open a serial port
   
-  const char *t_device_value;
-  struct termios my_serial;
+  const char *t_device_value; //!< Directory to the device port
+  struct termios my_serial; //!< Structure for the seriel port
 
   t_device_value = gtk_entry_get_text(GTK_ENTRY(gui_app->entry_sd));
   //open serial port with read and write, no controling terminal (we don't
@@ -80,20 +91,28 @@ extern "C" void button_opendevice_clicked(GtkWidget *p_wdgt, gpointer p_data )
   //You can add code beyond this line but do not change anything above this line
   
 }
-/** This function closes the serial port for the Teensy**/
+/*!
+ *\brief Closes up the serial port for the Teensy
+ * \param p_wdgt Pointer to the widget
+ * \param p_data Pointer to the data for the widget
+ */
 extern "C" void button_closedevice_clicked(GtkWidget *p_wdgt, gpointer p_data ) 
 {
-  //this is how you disable a button:
-  gtk_widget_set_sensitive (gui_app->button_closedevice,FALSE);
+
+  gtk_widget_set_sensitive (gui_app->button_closedevice,FALSE);  //!!<This is how you disable a button:
   //this is how you enable a button:
-  gtk_widget_set_sensitive (gui_app->button_opendevice,TRUE);
+  gtk_widget_set_sensitive (gui_app->button_opendevice,TRUE);  //!!<This is how you enable a button:
 
   //do not change the next two lines; they close the serial port
   close(ser_dev);
   ser_dev=-1;
 
 }
-/** This function sends the value to the Teensy **/
+/*!
+ *\brief  Sends the packet created to the Teensy
+ * \param p_wdgt Pointer to the widget
+ * \param p_data Pointer to the data for the widget
+ */
 extern "C" void button_send_clicked(GtkWidget *p_wdgt, gpointer p_data ) 
 {
   const char *t_red_value;
@@ -133,18 +152,26 @@ gtk_range_set_value(GTK_RANGE(gui_app->scale_blue),uc_blue_value);
   //this is how you send an array out on the serial port:
   write(ser_dev,send_buff,length_send_buff);
 }
-/** Changes the value of the scale **/
+/*!
+ *\brief Changes the in the text boxes based on changes in the scale widget
+ * \param p_wdgt Pointer to the widget
+ * \param p_data Pointer to the data for the widget
+ */
 extern "C" void scale_rgb_value_changed(GtkWidget *p_wdgt, gpointer p_data ) 
 {
-char c_cc_value[40];
+  char c_cc_value[40];
+  char send_buff[7];
+  int length_send_buff = 7;
   //getting the value of the scale slider 
   double g_red_value = gtk_range_get_value(GTK_RANGE(gui_app->scale_red));
   double g_green_value = gtk_range_get_value(GTK_RANGE(gui_app->scale_green));
   double g_blue_value = gtk_range_get_value(GTK_RANGE(gui_app->scale_blue));
-  
-unsigned char uc_red_value = (char) g_red_value;
-unsigned char uc_green_value = (char) g_green_value;
-unsigned char uc_blue_value = (char) g_blue_value;
+ 
+ 
+unsigned char uc_red_value = (unsigned char) g_red_value;
+unsigned char uc_green_value = (unsigned char) g_green_value;
+unsigned char uc_blue_value = (unsigned char) g_blue_value;
+
 //setting text on entry
   sprintf(c_cc_value,"%d",uc_red_value);
   gtk_entry_set_text(GTK_ENTRY(gui_app->entry_red),c_cc_value);
@@ -153,9 +180,28 @@ unsigned char uc_blue_value = (char) g_blue_value;
   sprintf(c_cc_value,"%d",uc_blue_value);
   gtk_entry_set_text(GTK_ENTRY(gui_app->entry_blue),c_cc_value);
   
+
+  unsigned char checksum;
+  checksum = 0xAA ^ 0x07 ^ 0x4C ^ uc_red_value ^ uc_green_value ^ uc_blue_value;
+  sprintf(c_cc_value,"AA 07 4C %0.2x %0.2x %0.2x %0.2x",uc_red_value, uc_green_value, uc_blue_value, checksum);
+  gtk_label_set_text(GTK_LABEL(gui_app->label_tx),c_cc_value);
+  send_buff[0] = (char) 0xAA;
+  send_buff[1] = (char) 0x07;
+  send_buff[2] = 'L';
+  send_buff[3] = uc_red_value;
+  send_buff[4] = uc_green_value;
+  send_buff[5] = uc_blue_value;
+  send_buff[6] = checksum;
+  //this is how you send an array out on the serial port:
+  write(ser_dev,send_buff,length_send_buff);
+  
 }
 
-/** Closes the GUI when the exit button is clicked **/
+/*!
+ *\brief Closes the GUI and ends the program when the Exit button is pressed
+ * \param p_wdgt Pointer to the widget
+ * \param p_data Pointer to the data for the widget
+ */
 extern "C" void button_exit_clicked(GtkWidget *p_wdgt, gpointer p_data ) 
 {
   gtk_main_quit();
@@ -171,7 +217,7 @@ extern "C" void button_exit_clicked(GtkWidget *p_wdgt, gpointer p_data )
 //
 //********************************************************************
 //********************************************************************
-
+/** Main loop**/
 int main(int argc, char **argv)
 {
 
